@@ -18,15 +18,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Run Build Script
         run: |
-          chmod +x scripts/build-apk.sh
-          bash scripts/build-apk.sh
+          chmod +x scripts/build-apk.sh || chmod +x build-apk.sh || true
+          if [ -f "scripts/build-apk.sh" ]; then
+            bash scripts/build-apk.sh
+          elif [ -f "build-apk.sh" ]; then
+            bash build-apk.sh
+          else
+            echo "Script bulunamadi, mevcut dosyalar:"
+            ls -la
+            exit 1
+          fi
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
